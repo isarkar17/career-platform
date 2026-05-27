@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mock Interviewer — Career Platform</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="page">
+
+  <a class="back" href="/">← All tools</a>
+
+  <div class="hero">
+    <h1>AI Mock Interviewer</h1>
+    <p>
+      Practice 5 real behavioural interview questions. Get scored on the STAR method —
+      Situation, Task, Action, Result — with specific coaching after every answer.
+    </p>
+  </div>
+
+  <div id="setup-section">
+    <div class="form-card">
+      <h2>Set up your interview</h2>
+      <p class="subtitle">We'll generate questions tailored to your target role type</p>
+      <div class="field">
+        <label>Target role type</label>
+        <select id="role-select">
+          <option value="general">General / Any role</option>
+          <option value="technology and software development">Technology / Software</option>
+          <option value="retail and customer service">Retail / Customer service</option>
+          <option value="healthcare and social care">Healthcare / Social care</option>
+          <option value="finance and business">Finance / Business</option>
+          <option value="creative and media">Creative / Media</option>
+          <option value="education and charity sector">Education / Charity</option>
+          <option value="public sector and government">Public sector</option>
+        </select>
+      </div>
+      <button class="btn btn-full" onclick="startInterview()">Start interview →</button>
+    </div>
+  </div>
+
+  <div id="interview-section" style="display:none">
+    <div class="progress-strip" id="progress-dots"></div>
+
+    <div class="q-card">
+      <div class="q-label" id="q-label">Question 1 of 5</div>
+      <div class="q-text"  id="q-text"></div>
+    </div>
+
+    <div class="form-card">
+      <div class="field">
+        <label>Your answer</label>
+        <textarea id="answer-input" style="height:150px"
+          placeholder="Use the STAR method: describe the Situation, your Task, the specific Actions YOU took (not 'we'), and the Result or outcome..."></textarea>
+      </div>
+      <button class="btn btn-full" id="submit-btn" onclick="submitAnswer()">
+        Submit answer →
+      </button>
+    </div>
+  </div>
+
+  <div class="loading" id="scoring-loading">
+    <p class="dots">Scoring your answer</p>
+    <p class="sub">Analysing using the STAR framework</p>
+  </div>
+
+  <div id="score-section" style="display:none">
+    <div class="score-grid" id="score-grid"></div>
+
+    <div class="fb" id="strength-box">
+      <div class="fb-label">✓ What worked</div>
+      <div id="strength-text"></div>
+    </div>
+
+    <div class="fb improve" id="improve-box">
+      <div class="fb-label">→ What to change next time</div>
+      <div id="improve-text"></div>
+    </div>
+
+    <div style="margin-top:1rem">
+      <button class="btn btn-full" id="next-btn" onclick="nextQuestion()">
+        Next question →
+      </button>
+    </div>
+  </div>
+
+  <div id="report-section" style="display:none">
+    <div class="big-score">
+      <div class="num" id="report-num">0</div>
+      <div class="pct" id="report-pct">out of 250</div>
+      <div class="desc" id="report-desc">Loading report...</div>
+    </div>
+
+    <div class="result-card" id="report-detail" style="font-size:13px"></div>
+
+    <div class="btn-row">
+      <button class="copy-ui" onclick="copyReport()">Copy report</button>
+      <a class="btn btn-ghost" href="/interviewer">Try again</a>
+      <a class="btn" href="/scorecard">Get your scorecard →</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let currentResult = null;
+let isFinal       = false;
+let reportData    = null;
+
+async function startInterview() {
+  const role = document.getElementById('role-select').value;
+
+  document.getElementById('setup-section').style.display  = 'none';
+  document.getElementById('scoring-loading').classList.add('show');
+
+  try {
+    const resp = await fetch('/api/interview/start', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'X-API-Key': '{{ api_key }}' },
+      body:    JSON.stringify({ role })
+    });
+    const data = await resp.json();
+    document.getElementById('scoring-loading').classList.remove('show');
+
+    showQuestion(data.question, data.num, data.total);
+    document.getElementById('interview-section').style.display = 'block';
+
+  } catch (err) {
+    document.getElementById('scoring-loading').classList.remove('show');
+    document.getElementById('setup-section').style.display = 'block';
+    alert('Could not start interview — please try again. ' + err.message);
+  }
+}
+
+function showQuestion(text, num, total) {
+  let dots = '';
+  for (let i = 1; i <= total; i++) {
+    const cls = i < num ? 'done' : i === num ? 'current' : '';
+    dots += `<div class="prog-dot ${cls}"></div>`;
+  }
+  document.getElementById('progress-dots').innerHTML = dots;
+
+  document.getElementById('q-label').textContent = `Question ${num} of ${total}`;
+  document.getElementById('q-text').textContent  = text;
+  document.getElementById('answer-input').value  = '';
+  document.getElementById('submit-btn').disabled = false;
+
+  document.getElementById('score-section').style.display = 'none';
+}
+
+async function submitAnswer() {
+  const answer = document.getElementById('answer-input').value.trim();
+  if (answer.length < 25) {
+    alert('Please write a more complete answer before submitting.');
+    return;
+  }
+
+  document.getElementById('submit-btn').disabled = true;
+  document.getElementById('scoring-loading').classList.add('show');
+
+  try {
+    const resp = await fetch('/api/interview/answer', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'X-API-Key': '{{ api_key }}' },
+      body:    JSON.stringify({ answer })
+    });
+    const data = await resp.json();
+    document.getElementById('scoring-loading').classList.remove('show');
+
+    currentResult = data;
+    isFinal       = data.is_final;
+
+    displayScore(data.score);
+    document.getElementById('next-btn').textContent = isFinal
+      ? 'See my full report →'
+      : 'Next question →';
+    document.getElementById('score-section').style.display = 'block';
+
+  } catch (err) {
+    document.getElementById('scoring-loading').classList.remove('show');
+    document.getElementById('submit-btn').disabled = false;
+    alert('Error scoring answer — please try again.');
+  }
+}
+
+function displayScore(score) {
+  const dims = ['situation','task','action','result','communication'];
+  let html = '';
+  dims.forEach(d => {
+    html += `<div class="score-box">
+      <div class="val">${score[d] || 0}/10</div>
+      <div class="lbl">${d}</div>
+    </div>`;
+  });
+  document.getElementById('score-grid').innerHTML  = html;
+  document.getElementById('strength-text').textContent = score.strength    || '';
+  document.getElementById('improve-text').textContent  = score.improvement || '';
+}
+
+async function nextQuestion() {
+  if (!isFinal) {
+    document.getElementById('score-section').style.display = 'none';
+    showQuestion(currentResult.next_question, currentResult.next_num, 5);
+    return;
+  }
+
+  document.getElementById('interview-section').style.display = 'none';
+  document.getElementById('score-section').style.display     = 'none';
+  document.getElementById('scoring-loading').classList.add('show');
+
+  try {
+    const resp = await fetch('/api/interview/report', {
+      headers: { 'X-API-Key': '{{ api_key }}' }
+    });
+    reportData = await resp.json();
+    document.getElementById('scoring-loading').classList.remove('show');
+    displayReport(reportData);
+  } catch (err) {
+    document.getElementById('scoring-loading').classList.remove('show');
+    alert('Could not load report. ' + err.message);
+  }
+}
+
+function displayReport(data) {
+  const pct = data.percent || 0;
+  document.getElementById('report-num').textContent  = data.total   || 0;
+  document.getElementById('report-pct').textContent  = `out of ${data.maximum || 250} — ${pct}% overall`;
+  document.getElementById('report-desc').textContent =
+    `Weakest area: ${data.weakest || 'N/A'} — prioritise this in your next practice session`;
+
+  let detail = `INTERVIEW REPORT\n${'─'.repeat(40)}\n\n`;
+  (data.scores || []).forEach((s, i) => {
+    const dims   = ['situation','task','action','result','communication'];
+    const total  = dims.reduce((sum, d) => sum + (s.score[d] || 0), 0);
+    detail += `Q${i + 1} — ${total}/50\n`;
+    detail += `Q: ${s.q}\n`;
+    detail += `✓ Strength: ${s.score.strength    || ''}\n`;
+    detail += `→ Improve:  ${s.score.improvement || ''}\n\n`;
+  });
+  detail += `Overall: ${data.total}/${data.maximum} (${pct}%)\n`;
+  detail += `Focus area: ${data.weakest}`;
+
+  document.getElementById('report-detail').textContent = detail;
+  document.getElementById('report-section').style.display = 'block';
+}
+
+function copyReport() {
+  const text = document.getElementById('report-detail').textContent;
+  navigator.clipboard.writeText(text).then(() => alert('Report copied to clipboard!'));
+}
+</script>
+</body>
+</html>
