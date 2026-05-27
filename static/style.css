@@ -1,0 +1,293 @@
+/* Career Platform — shared stylesheet */
+/* Works across index, coach, interviewer, and scorecard pages */
+
+*  { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #FAFAF8;
+  color: #252320;
+  font-size: 15px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Layout ─────────────────────────────────────────────────────── */
+.page { max-width: 880px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
+
+/* ── Hero strip ─────────────────────────────────────────────────── */
+.hero {
+  background: #111;
+  border-radius: 14px;
+  padding: 2.25rem 2.5rem;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -80px; right: -80px;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(200,134,10,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero h1 {
+  font-size: 26px;
+  font-weight: 700;
+  color: #FAFAF8;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.625rem;
+}
+.hero p {
+  color: rgba(250, 249, 246, 0.5);
+  font-size: 14px;
+  font-weight: 300;
+  max-width: 540px;
+  line-height: 1.7;
+}
+
+/* ── Back link ──────────────────────────────────────────────────── */
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #7C7A72;
+  text-decoration: none;
+  margin-bottom: 1.5rem;
+  transition: color 0.15s;
+}
+.back:hover { color: #252320; }
+
+/* ── Homepage tool grid ─────────────────────────────────────────── */
+.tool-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.tool-card {
+  background: #fff;
+  border: 1px solid #E2DFD9;
+  border-radius: 12px;
+  padding: 1.75rem;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.tool-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
+}
+.tool-icon  { font-size: 24px; margin-bottom: 0.75rem; }
+.tool-num   {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: #C8860A; margin-bottom: 4px;
+}
+.tool-card h2 {
+  font-size: 17px; font-weight: 600;
+  letter-spacing: -0.01em; margin-bottom: 0.5rem;
+}
+.tool-card p { font-size: 13px; color: #7C7A72; line-height: 1.6; font-weight: 300; margin-bottom: 1rem; }
+.tool-cta    { font-size: 13px; font-weight: 500; color: #111; }
+.lenny-credit { font-size: 12px; color: #7C7A72; text-align: center; margin-top: 0.5rem; }
+.lenny-credit a { color: #C8860A; }
+
+/* ── Form cards ─────────────────────────────────────────────────── */
+.form-card {
+  background: #fff;
+  border: 1px solid #E2DFD9;
+  border-radius: 12px;
+  padding: 1.75rem 2rem;
+  margin-bottom: 1.25rem;
+}
+.form-card h2 {
+  font-size: 17px; font-weight: 600;
+  letter-spacing: -0.01em; margin-bottom: 4px;
+}
+.subtitle { font-size: 13px; color: #7C7A72; margin-bottom: 1.5rem; font-weight: 300; }
+
+/* ── Fields ─────────────────────────────────────────────────────── */
+.field       { margin-bottom: 1rem; }
+.field label {
+  display: block;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: #7C7A72; margin-bottom: 5px;
+}
+.field select,
+.field input,
+.field textarea {
+  width: 100%;
+  border: 1px solid #E2DFD9;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-family: inherit;
+  font-size: 14px;
+  color: #252320;
+  background: #FAFAF8;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.field select:focus,
+.field input:focus,
+.field textarea:focus { border-color: #111; }
+.field textarea   { height: 90px; resize: vertical; }
+.field-row        { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* ── Skill checkboxes ───────────────────────────────────────────── */
+.skills-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 6px; }
+.skill-check { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
+.skill-check input { accent-color: #111; }
+
+/* ── Buttons ────────────────────────────────────────────────────── */
+.btn {
+  display: inline-block;
+  background: #111;
+  color: #FAFAF8;
+  border: none;
+  border-radius: 100px;
+  padding: 12px 28px;
+  font-size: 14px; font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  text-decoration: none;
+  transition: opacity 0.15s;
+  letter-spacing: -0.01em;
+}
+.btn:hover     { opacity: 0.85; }
+.btn:disabled  { opacity: 0.4; cursor: not-allowed; }
+.btn-full      { width: 100%; text-align: center; display: block; }
+.btn-amber     { background: #C8860A; }
+.btn-ghost     { background: #F3F1EC; color: #252320; }
+.btn-row       { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 1rem; }
+
+/* ── Loading ────────────────────────────────────────────────────── */
+.loading { display: none; text-align: center; padding: 2.5rem 1rem; color: #7C7A72; }
+.loading.show { display: block; }
+.loading p { font-size: 14px; }
+.loading .sub { font-size: 12px; color: #aaa; margin-top: 6px; }
+.dots::after {
+  content: '...';
+  animation: dots 1.4s infinite;
+}
+@keyframes dots {
+  0%   { content: '.'; }
+  33%  { content: '..'; }
+  66%  { content: '...'; }
+}
+
+/* ── Result card ────────────────────────────────────────────────── */
+.result-card {
+  background: #fff;
+  border: 1px solid #E2DFD9;
+  border-radius: 12px;
+  padding: 1.75rem 2rem;
+  white-space: pre-wrap;
+  line-height: 1.8;
+  font-size: 14px;
+  font-weight: 300;
+  margin-bottom: 1rem;
+}
+
+/* ── Sources ────────────────────────────────────────────────────── */
+.sources { margin-bottom: 1.25rem; }
+.source-label {
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: #7C7A72; margin-bottom: 6px;
+}
+.source-link { display: block; font-size: 12px; color: #C8860A; text-decoration: none; margin-bottom: 3px; }
+.source-link:hover { text-decoration: underline; }
+
+/* ── Interview progress ─────────────────────────────────────────── */
+.progress-strip { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.prog-dot { width: 10px; height: 10px; border-radius: 50%; background: #E2DFD9; }
+.prog-dot.done    { background: #3B6D11; }
+.prog-dot.current { background: #111; }
+
+/* ── Question card ──────────────────────────────────────────────── */
+.q-card { background: #F3F1EC; border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
+.q-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #7C7A72; margin-bottom: 6px; }
+.q-text  { font-size: 16px; font-weight: 500; line-height: 1.5; color: #111; }
+
+/* ── Score grid ─────────────────────────────────────────────────── */
+.score-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px; margin: 1rem 0;
+}
+.score-box { background: #F3F1EC; border-radius: 8px; padding: 10px; text-align: center; }
+.score-box .val { font-size: 22px; font-weight: 700; color: #111; line-height: 1; }
+.score-box .lbl {
+  font-size: 10px; color: #7C7A72;
+  text-transform: uppercase; letter-spacing: 0.05em; margin-top: 3px;
+}
+
+/* ── Feedback boxes ─────────────────────────────────────────────── */
+.fb { background: #EAF3DE; border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; font-size: 13px; line-height: 1.65; }
+.fb.improve { background: #FBF2DC; }
+.fb-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #3B6D11; margin-bottom: 4px; }
+.fb.improve .fb-label { color: #C8860A; }
+
+/* ── Big score (report) ─────────────────────────────────────────── */
+.big-score {
+  text-align: center;
+  background: #111;
+  border-radius: 14px;
+  padding: 2.5rem 1rem;
+  color: #FAFAF8;
+  margin-bottom: 1.25rem;
+}
+.big-score .num {
+  font-size: 60px; font-weight: 700;
+  letter-spacing: -0.05em; line-height: 1;
+}
+.big-score .pct  { font-size: 17px; color: rgba(250,249,246,0.45); margin-top: 5px; }
+.big-score .desc { font-size: 13px; color: rgba(250,249,246,0.35); margin-top: 8px; }
+
+/* ── Scorecard: severity badges ─────────────────────────────────── */
+.badge {
+  display: inline-block;
+  font-size: 11px; font-weight: 500;
+  padding: 3px 9px; border-radius: 20px; margin: 2px;
+}
+.badge-crit { background: #FAECE7; color: #993C1D; }
+.badge-imp  { background: #FBF2DC; color: #C8860A; }
+.badge-nice { background: #EAF3DE; color: #3B6D11; }
+
+/* ── Scorecard: 30-day roadmap ──────────────────────────────────── */
+.roadmap {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px; margin-top: 1rem;
+}
+.week-card   { background: #F3F1EC; border-radius: 8px; padding: 1rem; }
+.week-label  { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #7C7A72; margin-bottom: 6px; }
+.week-text   { font-size: 13px; color: #252320; line-height: 1.55; }
+
+/* ── Copy button (scorecard) ────────────────────────────────────── */
+.copy-ui {
+  background: #F3F1EC; border: 1px solid #E2DFD9;
+  border-radius: 8px; padding: 8px 16px;
+  font-size: 13px; font-weight: 500;
+  cursor: pointer; font-family: inherit; color: #252320;
+  transition: background 0.1s;
+}
+.copy-ui:hover { background: #E2DFD9; }
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .field-row      { grid-template-columns: 1fr; }
+  .score-grid     { grid-template-columns: repeat(3, 1fr); }
+  .roadmap        { grid-template-columns: 1fr 1fr; }
+  .skills-grid    { grid-template-columns: repeat(2, 1fr); }
+  .hero           { padding: 1.5rem; }
+  .hero h1        { font-size: 20px; }
+  .form-card      { padding: 1.25rem; }
+}
