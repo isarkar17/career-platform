@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Career Coach — Career Platform</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="page">
+
+  <a class="back" href="/">← All tools</a>
+
+  <div class="hero">
+    <h1>AI Career Coach</h1>
+    <p>
+      Tell us about yourself and your goal. We'll surface the most relevant career advice,
+      drawn from expert research and personalised to your exact situation.
+    </p>
+  </div>
+
+  <div class="form-card" id="form-section">
+    <h2>Your situation</h2>
+    <p class="subtitle">Takes 60 seconds — the more specific you are, the better the advice</p>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Your age range</label>
+        <select id="age">
+          <option value="16-18">16–18</option>
+          <option value="19-21">19–21</option>
+          <option value="22-25" selected>22–25</option>
+          <option value="26-30">26–30</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Highest qualification</label>
+        <select id="quals">
+          <option>No qualifications</option>
+          <option>GCSEs</option>
+          <option>A-levels or BTec</option>
+          <option>Vocational qualification</option>
+          <option selected>Degree</option>
+          <option>Postgraduate</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>What are you interested in?</label>
+      <input id="interests" type="text"
+        placeholder="e.g. technology, healthcare, creative design, finance, sport...">
+    </div>
+
+    <div class="field">
+      <label>What do you want to achieve?</label>
+      <textarea id="goal"
+        placeholder="e.g. get my first job in tech, switch from retail to marketing, land a graduate scheme, understand what employers actually want..."></textarea>
+    </div>
+
+    <button class="btn btn-full" onclick="getAdvice()">Get my career advice →</button>
+  </div>
+
+  <div class="loading" id="loading">
+    <p class="dots">Getting your advice</p>
+    <p class="sub">Searching expert sources and personalising for you</p>
+  </div>
+
+  <div id="result" style="display:none">
+    <div class="result-card" id="advice-text"></div>
+    <div class="sources" id="sources"></div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="restart()">Start again</button>
+      <a class="btn" href="/interviewer">Practice interviews →</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+async function getAdvice() {
+  const age       = document.getElementById('age').value;
+  const quals     = document.getElementById('quals').value;
+  const interests = document.getElementById('interests').value.trim();
+  const goal      = document.getElementById('goal').value.trim();
+
+  if (!interests || !goal) {
+    alert('Please fill in your interests and career goal before continuing.');
+    return;
+  }
+
+  document.getElementById('form-section').style.display = 'none';
+  document.getElementById('loading').classList.add('show');
+
+  try {
+    const resp = await fetch('/api/coach', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'X-API-Key': '{{ api_key }}' },
+      body:    JSON.stringify({ age, quals, interests, goal })
+    });
+
+    if (!resp.ok) throw new Error(`Server error ${resp.status}`);
+    const data = await resp.json();
+
+    document.getElementById('loading').classList.remove('show');
+    document.getElementById('advice-text').textContent = data.advice || 'No advice returned.';
+
+    if (data.sources && data.sources.length) {
+      let html = '<div class="source-label">Insights drawn from Lenny\'s archive</div>';
+      data.sources.forEach(s => {
+        html += `<a class="source-link" href="${s.url}" target="_blank" rel="noopener">${s.title}</a>`;
+      });
+      document.getElementById('sources').innerHTML = html;
+    }
+
+    document.getElementById('result').style.display = 'block';
+
+  } catch (err) {
+    document.getElementById('loading').classList.remove('show');
+    document.getElementById('form-section').style.display = 'block';
+    alert('Something went wrong — please try again in a moment. ' + err.message);
+  }
+}
+
+function restart() {
+  document.getElementById('result').style.display = 'none';
+  document.getElementById('interests').value = '';
+  document.getElementById('goal').value = '';
+  document.getElementById('form-section').style.display = 'block';
+}
+</script>
+</body>
+</html>
