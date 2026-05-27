@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readiness Scorecard — Career Platform</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="page">
+
+  <a class="back" href="/">← All tools</a>
+
+  <div class="hero">
+    <h1>Employer Readiness Scorecard</h1>
+    <p>
+      Tell us where you are. We'll score your readiness, identify your gaps,
+      and give you a 30-day roadmap — based on what employers in your sector
+      are actually hiring for right now.
+    </p>
+  </div>
+
+  <div id="form-section">
+    <div class="form-card">
+      <h2>Your profile</h2>
+      <p class="subtitle">Takes 2 minutes. The more honest you are, the more useful the scorecard.</p>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Target sector</label>
+          <select id="sector">
+            <option>Technology</option>
+            <option>Finance and business</option>
+            <option>Healthcare and social care</option>
+            <option>Retail and hospitality</option>
+            <option>Creative and media</option>
+            <option>Education</option>
+            <option>Public sector and charity</option>
+            <option>Not sure yet</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Target level</label>
+          <select id="level">
+            <option value="entry level first job">Entry level / First job</option>
+            <option value="internship">Internship</option>
+            <option value="graduate scheme">Graduate scheme</option>
+            <option value="career change">Career change</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Highest qualification</label>
+          <select id="quals">
+            <option>No qualifications</option>
+            <option>GCSEs</option>
+            <option>A-levels or BTec</option>
+            <option>Degree</option>
+            <option>Postgraduate</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Work experience</label>
+          <select id="experience">
+            <option value="none">None</option>
+            <option value="some (under 6 months)">Some (under 6 months)</option>
+            <option value="moderate (6–24 months)">Moderate (6–24 months)</option>
+            <option value="significant (2+ years)">Significant (2+ years)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Skills you have — tick all that apply</label>
+        <div class="skills-grid">
+          <label class="skill-check"><input type="checkbox" value="Communication"> Communication</label>
+          <label class="skill-check"><input type="checkbox" value="Teamwork"> Teamwork</label>
+          <label class="skill-check"><input type="checkbox" value="Problem solving"> Problem solving</label>
+          <label class="skill-check"><input type="checkbox" value="Digital literacy"> Digital literacy</label>
+          <label class="skill-check"><input type="checkbox" value="Data analysis"> Data analysis</label>
+          <label class="skill-check"><input type="checkbox" value="Customer service"> Customer service</label>
+          <label class="skill-check"><input type="checkbox" value="Leadership"> Leadership</label>
+          <label class="skill-check"><input type="checkbox" value="Project management"> Project management</label>
+          <label class="skill-check"><input type="checkbox" value="Creative thinking"> Creative thinking</label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Biggest concern about getting a job</label>
+        <input id="concern" type="text"
+          placeholder="e.g. no experience, don't know where to apply, not sure how to stand out...">
+      </div>
+
+      <div class="field">
+        <label>Timeline to employment</label>
+        <select id="timeline">
+          <option>As soon as possible</option>
+          <option>1–3 months</option>
+          <option>3–6 months</option>
+          <option>6–12 months</option>
+        </select>
+      </div>
+
+      <button class="btn btn-full btn-amber" onclick="generateScorecard()">
+        Generate my scorecard →
+      </button>
+    </div>
+  </div>
+
+  <div class="loading" id="sc-loading">
+    <p class="dots">Analysing your profile</p>
+    <p class="sub">Cross-referencing with current employer demand data</p>
+  </div>
+
+  <div id="sc-result" style="display:none">
+
+    <div class="big-score">
+      <div class="num" id="sc-num">0</div>
+      <div class="pct">/100</div>
+      <div class="desc" id="sc-label"></div>
+    </div>
+
+    <div class="form-card">
+      <h2>Summary</h2>
+      <p id="sc-summary" style="font-weight:300;line-height:1.75;font-size:14px"></p>
+    </div>
+
+    <div class="form-card">
+      <h2>Your strengths</h2>
+      <div id="sc-strengths"></div>
+    </div>
+
+    <div class="form-card">
+      <h2>Your gaps</h2>
+      <div id="sc-gaps"></div>
+    </div>
+
+    <div class="form-card">
+      <h2>Your 30-day roadmap</h2>
+      <div class="roadmap" id="sc-roadmap"></div>
+    </div>
+
+    <div class="form-card">
+      <h2>Your best first target</h2>
+      <p id="sc-target" style="font-weight:300;line-height:1.75;font-size:14px"></p>
+    </div>
+
+    <div class="btn-row">
+      <button class="copy-ui" onclick="copyScorecard()">Copy my scorecard</button>
+      <button class="btn btn-ghost" onclick="restart()">Start again</button>
+      <a class="btn" href="/interviewer">Practice interviews →</a>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+let scData = null;
+
+async function generateScorecard() {
+  const skills = [...document.querySelectorAll('.skills-grid input:checked')]
+    .map(i => i.value);
+
+  const profile = {
+    sector:     document.getElementById('sector').value,
+    level:      document.getElementById('level').value,
+    quals:      document.getElementById('quals').value,
+    experience: document.getElementById('experience').value,
+    skills,
+    concern:    document.getElementById('concern').value.trim(),
+    timeline:   document.getElementById('timeline').value
+  };
+
+  document.getElementById('form-section').style.display = 'none';
+  document.getElementById('sc-loading').classList.add('show');
+
+  try {
+    const resp = await fetch('/api/scorecard', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'X-API-Key': '{{ api_key }}' },
+      body:    JSON.stringify(profile)
+    });
+
+    if (!resp.ok) throw new Error(`Server error ${resp.status}`);
+    scData = await resp.json();
+
+    if (scData.error) throw new Error(scData.error);
+
+    document.getElementById('sc-loading').classList.remove('show');
+    renderScorecard(scData);
+    document.getElementById('sc-result').style.display = 'block';
+
+  } catch (err) {
+    document.getElementById('sc-loading').classList.remove('show');
+    document.getElementById('form-section').style.display = 'block';
+    alert('Something went wrong — please try again. ' + err.message);
+  }
+}
+
+function renderScorecard(d) {
+  document.getElementById('sc-num').textContent   = d.readiness_score || 0;
+  document.getElementById('sc-label').textContent = d.score_label     || '';
+  document.getElementById('sc-summary').textContent = d.summary       || '';
+  document.getElementById('sc-target').textContent  = d.next_target   || '';
+
+  let str = '';
+  (d.strengths || []).forEach(s => {
+    str += `<div style="padding:10px 0;border-bottom:1px solid #E2DFD9">
+      <strong style="font-size:14px">${s.skill}</strong><br>
+      <span style="font-size:13px;color:#7C7A72;font-weight:300">${s.evidence}</span>
+    </div>`;
+  });
+  document.getElementById('sc-strengths').innerHTML = str || '<p style="color:#7C7A72;font-size:13px">No specific strengths identified — work through the roadmap below.</p>';
+
+  let gaps = '';
+  (d.gaps || []).forEach(g => {
+    const cls = g.severity === 'critical'
+      ? 'badge-crit'
+      : g.severity === 'important'
+        ? 'badge-imp'
+        : 'badge-nice';
+    gaps += `<div style="padding:10px 0;border-bottom:1px solid #E2DFD9">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+        <strong style="font-size:14px">${g.skill}</strong>
+        <span class="badge ${cls}">${g.severity}</span>
+      </div>
+      <p style="font-size:13px;color:#7C7A72;font-weight:300">
+        Action this week: ${g.action}
+      </p>
+    </div>`;
+  });
+  document.getElementById('sc-gaps').innerHTML = gaps || '<p style="color:#7C7A72;font-size:13px">No critical gaps identified.</p>';
+
+  let roadmap = '';
+  ['week_1','week_2','week_3','week_4'].forEach((key, i) => {
+    roadmap += `<div class="week-card">
+      <div class="week-label">Week ${i + 1}</div>
+      <div class="week-text">${d[key] || 'No action specified.'}</div>
+    </div>`;
+  });
+  document.getElementById('sc-roadmap').innerHTML = roadmap;
+}
+
+function copyScorecard() {
+  if (!scData) return;
+  let text = `EMPLOYER READINESS SCORECARD\n${'─'.repeat(40)}\n\n`;
+  text += `Score: ${scData.readiness_score}/100 — ${scData.score_label}\n`;
+  text += `Summary: ${scData.summary}\n\n`;
+  text += `STRENGTHS:\n`;
+  (scData.strengths || []).forEach(s => { text += `• ${s.skill}: ${s.evidence}\n`; });
+  text += `\nGAPS:\n`;
+  (scData.gaps || []).forEach(g => { text += `• ${g.skill} [${g.severity}]: ${g.action}\n`; });
+  text += `\n30-DAY ROADMAP:\n`;
+  text += `Week 1: ${scData.week_1}\n`;
+  text += `Week 2: ${scData.week_2}\n`;
+  text += `Week 3: ${scData.week_3}\n`;
+  text += `Week 4: ${scData.week_4}\n`;
+  text += `\nFirst target: ${scData.next_target}`;
+  navigator.clipboard.writeText(text).then(() => alert('Scorecard copied to clipboard!'));
+}
+
+function restart() {
+  scData = null;
+  document.getElementById('sc-result').style.display = 'none';
+  document.getElementById('form-section').style.display = 'block';
+  document.querySelectorAll('.skills-grid input').forEach(i => i.checked = false);
+  document.getElementById('concern').value = '';
+}
+</script>
+</body>
+</html>
